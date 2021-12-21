@@ -1,0 +1,12 @@
+.vs/
+node_modules/
+.env
+*.log
+*-audit.json
+*.rdb
+subscribe.sh
+publish.sh
+subscribe1.sh
+publish1.sh
+
+private*/
