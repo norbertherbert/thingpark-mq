@@ -14,7 +14,7 @@ docker-compose down
 ```
 
 ## Tests
-- Make sure you have installed mosquitto_sub and mosquitto_pub client utilities
-- Update the template scripts in the test folder with your credentials
-- Run a subscribe test script in a terminal
-- Run a publish test script in another terminal and check if you received a 'helo' message at the subscriber's side
+Reade the `README.md` file of the `test_template` folder
+
+## Deploy for Production
+Reade the `README.md` file of the `vmq/certs` folder

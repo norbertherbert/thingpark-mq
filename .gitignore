@@ -5,4 +5,4 @@ node_modules/
 *-audit.json
 *.rdb
 
-private*/
+test_private/
