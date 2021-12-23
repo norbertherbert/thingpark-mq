@@ -2,24 +2,16 @@ import { stringify } from 'querystring';
 import fetch from 'node-fetch';
 import httpError from 'http-errors';
 
-const cfg = {
-  dev1: { // used for Ecosystem_TPXLE with Ecosystem_DxAdminAPI
-    TOKEN_REQUEST_URL: "https://dx-api.thingpark.io/admin/latest/api/oauth/token",
-    GRANT_TYPE: "client_credentials",
-  },
-  'le-lab': { // used for R&D_TPXLE with R&D_Keycloak
-    TOKEN_REQUEST_URL: "https://le-lab.preview.thingpark.com/auth",
-    GRANT_TYPE: "password",
-    SCOPE: "openid",
-    CLIENT_ID: "tpx-le-nit",
-  },
-  rnd: { // # used for R&D_TPXLE with R&D_DxAdminAPI
-    TOKEN_REQUEST_URL: "https://dx-api.preview.thingpark.com/admin/latest/api/oauth/token",
-    GRANT_TYPE: "client_credentials",
-  }
-}
 
-export const getAccessTokenAsync = async (clientId, clientSecret, realm) => {
+const DXAPI_GRANT_TYPE = process.env.DXAPI_GRANT_TYPE || 'client_credentials';
+const DXAPI_TOKEN_REQUEST_URL = process.env.DXAPI_TOKEN_REQUEST_URL || 'https://dx-api.thingpark.io/admin/latest/api/oauth/token';
+const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'le-lab';
+const KEYCLOAK_GRANT_TYPE = process.env.KEYCLOAK_GRANT_TYPE || 'password';
+const KEYCLOAK_SCOPE = process.env.KEYCLOAK_SCOPE || 'openid';
+const KEYCLOAK_CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID || 'tpx-le-nit';
+const KEYCLOAK_TOKEN_REQUEST_URL = process.env.KEYCLOAK_TOKEN_REQUEST_URL || `https://le-lab.preview.thingpark.com/auth/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
+
+export const getAccessTokenAsync = async (clientId, clientSecret, authSrvType) => {
   let url;
 
   const options = {
@@ -30,25 +22,25 @@ export const getAccessTokenAsync = async (clientId, clientSecret, realm) => {
     },
   };
 
-  if (cfg[realm].GRANT_TYPE === 'client_credentials') {
-    url = cfg[realm].TOKEN_REQUEST_URL;
+  if (authSrvType === 'dx-api') {
+    url = DXAPI_TOKEN_REQUEST_URL;
     options.body = stringify({
       client_id: clientId,
       client_secret: clientSecret,
-      grant_type: cfg[realm].GRANT_TYPE,
+      grant_type: DXAPI_GRANT_TYPE,
     });
-  } else if (cfg[realm].GRANT_TYPE === 'password') {
+  } else if (authSrvType === 'keycloak') {
     options.body = stringify({
       username: clientId,
       password: clientSecret,
-      grant_type: cfg[realm].GRANT_TYPE,
-      scope: cfg[realm].SCOPE,
-      client_id: cfg[realm].CLIENT_ID,
+      grant_type: KEYCLOAK_GRANT_TYPE,
+      scope: KEYCLOAK_SCOPE,
+      client_id: KEYCLOAK_CLIENT_ID,
     });
-    url = `${cfg[realm].TOKEN_REQUEST_URL}/realms/${realm}/protocol/openid-connect/token`;
+    url = KEYCLOAK_TOKEN_REQUEST_URL;
   } else {
-    console.log(`UL: getAccessTokenAsync: clientId: ${clientId}: Invalid realm/grant_time`);
-    throw httpError(400, 'Invalid realm.');
+    console.log(`UL: getAccessTokenAsync: clientId: ${clientId}: Invalid authSrvType`);
+    throw httpError(400, 'Invalid authSrvType.');
   }
 
   let accessToken;
