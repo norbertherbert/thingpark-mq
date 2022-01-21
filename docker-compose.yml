@@ -38,47 +38,51 @@ services:
     volumes:
        - ./vmq/certs:/opt/vernemq/certs
     environment:
-      - ALLOW_ANONYMOUS=off
+      - VMQ_CONF___ALLOW_ANONYMOUS=off
 
-      - LISTENER__TCP__DEFAULT=0.0.0.0:1883
+      - VMQ_CONF___LISTENER__TCP__DEFAULT=0.0.0.0:1883
 
-      - LISTENER__WS__DEFAULT=0.0.0.0:800
+      - VMQ_CONF___LISTENER__WS__DEFAULT=0.0.0.0:800
 
-      - LISTENER__SSL__SELF_SIGNED_CA=0.0.0.0:8884
-      - LISTENER__SSL__SELF_SIGNED_CA__CAFILE=/opt/vernemq/certs/ca.crt
-      - LISTENER__SSL__SELF_SIGNED_CA__CERTFILE=/opt/vernemq/certs/localhost/server.crt
-      - LISTENER__SSL__SELF_SIGNED_CA__KEYFILE=/opt/vernemq/certs/localhost/server.key
+      - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA=0.0.0.0:8884
+      - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__CAFILE=/opt/vernemq/certs/ca.crt
+      - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__CERTFILE=/opt/vernemq/certs/localhost/server.crt
+      - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__KEYFILE=/opt/vernemq/certs/localhost/server.key
 
       #### To make SSL and WSS work with PKI/Letsecrypt create the following sym-links on your host machine
       #### ./vmq/certs/letsencrypt/chain.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/chain.pem
       #### ./vmq/certs/letsencrypt/privkey.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/privkey.pem
       #### ./vmq/certs/letsencrypt/fullchain.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/fullchain.pem
 
-      # - LISTENER__SSL__DEFAULT=0.0.0.0:8883
-      # - LISTENER__SSL__CAFILE=/opt/vernemq/certs/letsencrypt/chain.pem
-      # - LISTENER__SSL__CERTFILE=/opt/vernemq/certs/letsencrypt/fullchain.pem
-      # - LISTENER__SSL__KEYFILE=/opt/vernemq/certs/letsencrypt/privkey.pem
+      # - VMQ_CONF___LISTENER__SSL__DEFAULT=0.0.0.0:8883
+      # - VMQ_CONF___LISTENER__SSL__CAFILE=/opt/vernemq/certs/letsencrypt/chain.pem
+      # - VMQ_CONF___LISTENER__SSL__CERTFILE=/opt/vernemq/certs/letsencrypt/fullchain.pem
+      # - VMQ_CONF___LISTENER__SSL__KEYFILE=/opt/vernemq/certs/letsencrypt/privkey.pem
 
-      # - LISTENER__WSS__DEFAULT=0.0.0.0:880
-      # - LISTENER__WSS__CAFILE=/opt/vernemq/letsencrypt/chain.pem
-      # - LISTENER__WSS__CERTFILE=/opt/vernemq/letsencrypt/fullchain.pem
-      # - LISTENER__WSS__KEYFILE=/opt/vernemq/letsencrypt/privkey.pem
+      # - VMQ_CONF___LISTENER__WSS__DEFAULT=0.0.0.0:880
+      # - VMQ_CONF___LISTENER__WSS__CAFILE=/opt/vernemq/letsencrypt/chain.pem
+      # - VMQ_CONF___LISTENER__WSS__CERTFILE=/opt/vernemq/letsencrypt/fullchain.pem
+      # - VMQ_CONF___LISTENER__WSS__KEYFILE=/opt/vernemq/letsencrypt/privkey.pem
 
-      - LISTENER__VMQ__CLUSTERING=0.0.0.0:44053
+      - VMQ_CONF___LISTENER__VMQ__CLUSTERING=0.0.0.0:44053
 
-      - LISTENER__HTTP__DEFAULT=0.0.0.0:8888
+      - VMQ_CONF___LISTENER__HTTP__DEFAULT=0.0.0.0:8888
 
-      - PLUGINS__VMQ_DIVERSITY=on
-      - VMQ_DIVERSITY__HTTP_AUTH__FILE=/opt/vernemq/auth_http.lua
-      - CUSTOM_VMQ_HTTP_AUTH_URL=http://http-auth:3000/vmq/lua
+      - VMQ_CONF___PLUGINS__VMQ_PASSWD=off
+      - VMQ_CONF___PLUGINS__VMQ_ACL=off
+      - VMQ_CONF___PLUGINS__VMQ_DIVERSITY=on
+      - VMQ_CONF___PLUGINS__VMQ_WEBHOOKS=off
 
-      # - PLUGINS__VMQ_WEBHOOKS=off
-      # - VMQ_WEBHOOKS__AUTH_ON_REGISTER__HOOK=auth_on_register
-      # - VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__HOOK=auth_on_subscribe
-      # - VMQ_WEBHOOKS__AUTH_ON_PUBLISH__HOOK=auth_on_publish
-      # - VMQ_WEBHOOKS__AUTH_ON_REGISTER__ENDPOINT=http://http-auth:3000/vmq/auth
-      # - VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__ENDPOINT=http://http-auth:3000/vmq/sub
-      # - VMQ_WEBHOOKS__AUTH_ON_PUBLISH__ENDPOINT=http://http-auth:3000/vmq/pub
+      - VMQ_CONF___VMQ_DIVERSITY__HTTP_AUTH__FILE=/opt/vernemq/auth_http.lua
+
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__HOOK=auth_on_register
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__HOOK=auth_on_subscribe
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__HOOK=auth_on_publish
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__ENDPOINT=http://http-auth:3000/vmq/auth
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__ENDPOINT=http://http-auth:3000/vmq/sub
+      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__ENDPOINT=http://http-auth:3000/vmq/pub
+
+      - VMQ_HTTP_AUTH_URL=http://http-auth:3000/vmq/lua
 
     command:
       ["/opt/vernemq/bin/start_vernemq.sh"]

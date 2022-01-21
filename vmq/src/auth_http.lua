@@ -3,7 +3,7 @@ require "auth/auth_commons"
 -- URL = "http://host.docker.internal:3000/vernemq"
 -- URL = "http://vmq-http-auth:3000/vmq"
 
-URL = os.getenv("CUSTOM_VMQ_HTTP_AUTH_URL")
+URL = os.getenv("VMQ_HTTP_AUTH_URL")
 
 function auth_on_register(reg)
     if reg.username ~= nil and reg.password ~= nil then

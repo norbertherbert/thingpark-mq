@@ -17,7 +17,7 @@ RUN apt-get update && \
 WORKDIR /opt/vernemq
 
 COPY --from=builder /vernemq/_build/default/rel/vernemq /opt/vernemq
-COPY ./src/vernemq_template.conf /opt/vernemq/etc/vernemq_template.conf
+# COPY ./src/vernemq_template.conf /opt/vernemq/etc/vernemq_template.conf
 COPY ./src/auth_http.lua /opt/vernemq/auth_http.lua
 COPY ./src/start_vernemq.sh /opt/vernemq/bin/start_vernemq.sh
 
@@ -25,7 +25,8 @@ COPY ./certs/ca.crt /opt/vernemq/certs/ca.crt
 COPY ./certs/localhost/server.key /opt/vernemq/certs/server.key
 COPY ./certs/localhost/server.crt /opt/vernemq/certs/server.crt
 
-RUN chown -R 10000:10000 /opt/vernemq && \
+RUN mkdir /opt/vernemq/etc/conf.d && \
+    chown -R 10000:10000 /opt/vernemq && \
     chmod +x /opt/vernemq/bin/start_vernemq.sh && \
     echo 'export PATH=$PATH:/opt/vernemq/bin' >> .bashrc && \
     ln -s /opt/vernemq/etc /etc/vernemq && \
