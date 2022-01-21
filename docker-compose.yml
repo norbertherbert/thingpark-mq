@@ -30,7 +30,7 @@ services:
     ports:
      - 800:800       # WS 
      - 880:880       # WSS
-     - 1883:1883     # MQTT
+     - 1883:1883     # MQTT/TCP
      - 8883:8883     # MQTT/SSL
      - 8884:8884     # MQTT/SSL Self Signed
      - 8888:8888     # HTTP
@@ -38,51 +38,71 @@ services:
     volumes:
        - ./vmq/certs:/opt/vernemq/certs
     environment:
+
+      #### Authentication always requires client credentials Username/Password
       - VMQ_CONF___ALLOW_ANONYMOUS=off
 
+      #### We don't use statit files for Authentication and Authorization
+      - VMQ_CONF___PLUGINS__VMQ_PASSWD=off
+      - VMQ_CONF___PLUGINS__VMQ_ACL=off
+
+      #### We use a LUA script for Authentication and Authorization
+      #### The http interface is defined within the LUA script that also handles the cahing of ACLs
+      #### Please note that VMQ_HTTP_AUTH_URL is not a VerneMQ config parameter but a variable of the LUA script
+      - VMQ_CONF___PLUGINS__VMQ_DIVERSITY=on
+      - VMQ_CONF___VMQ_DIVERSITY__HTTP_AUTH__FILE=/opt/vernemq/auth_http.lua
+      - VMQ_HTTP_AUTH_URL=http://http-auth:3000/vmq/lua
+
+      #### We dont use http webhooks for authentication
+      - VMQ_CONF___PLUGINS__VMQ_WEBHOOKS=off
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__HOOK=auth_on_register
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__HOOK=auth_on_subscribe
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__HOOK=auth_on_publish
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__ENDPOINT=http://http-auth:3000/vmq/auth
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__ENDPOINT=http://http-auth:3000/vmq/sub
+      # - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__ENDPOINT=http://http-auth:3000/vmq/pub
+
+
+      ####
+      #### The following params define the VerneMQ Listeners
+      ####
+
+      #### MQTT TCP Listener - No Encryption, Must not be allowed from outside Actility
       - VMQ_CONF___LISTENER__TCP__DEFAULT=0.0.0.0:1883
 
+      #### MQTT Websocket Listener - No encription, Must not be allowed from outside Actility
       - VMQ_CONF___LISTENER__WS__DEFAULT=0.0.0.0:800
 
+     #### MQTT SSL Listener, Actility CA
       - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA=0.0.0.0:8884
       - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__CAFILE=/opt/vernemq/certs/ca.crt
       - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__CERTFILE=/opt/vernemq/certs/localhost/server.crt
       - VMQ_CONF___LISTENER__SSL__SELF_SIGNED_CA__KEYFILE=/opt/vernemq/certs/localhost/server.key
 
-      #### To make SSL and WSS work with PKI/Letsecrypt create the following sym-links on your host machine
+      #### To make SSL and WSS work with PKI/Letsecrypt uncomment the following lines and 
+      #### create the following sym-links on your host machine:
       #### ./vmq/certs/letsencrypt/chain.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/chain.pem
       #### ./vmq/certs/letsencrypt/privkey.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/privkey.pem
       #### ./vmq/certs/letsencrypt/fullchain.pem -> /etc/letsencrypt/live/<YOUR_SERVER_NAME>/fullchain.pem
 
+      #### MQTT SSL Listener, Public CA
       # - VMQ_CONF___LISTENER__SSL__DEFAULT=0.0.0.0:8883
       # - VMQ_CONF___LISTENER__SSL__CAFILE=/opt/vernemq/certs/letsencrypt/chain.pem
       # - VMQ_CONF___LISTENER__SSL__CERTFILE=/opt/vernemq/certs/letsencrypt/fullchain.pem
       # - VMQ_CONF___LISTENER__SSL__KEYFILE=/opt/vernemq/certs/letsencrypt/privkey.pem
 
+      #### MQTT Websocket/SSL Listener, Public CA
       # - VMQ_CONF___LISTENER__WSS__DEFAULT=0.0.0.0:880
       # - VMQ_CONF___LISTENER__WSS__CAFILE=/opt/vernemq/letsencrypt/chain.pem
       # - VMQ_CONF___LISTENER__WSS__CERTFILE=/opt/vernemq/letsencrypt/fullchain.pem
       # - VMQ_CONF___LISTENER__WSS__KEYFILE=/opt/vernemq/letsencrypt/privkey.pem
 
+      #### Listener for Cluster connections
       - VMQ_CONF___LISTENER__VMQ__CLUSTERING=0.0.0.0:44053
 
+      #### Listener for HTTP statistics
       - VMQ_CONF___LISTENER__HTTP__DEFAULT=0.0.0.0:8888
 
-      - VMQ_CONF___PLUGINS__VMQ_PASSWD=off
-      - VMQ_CONF___PLUGINS__VMQ_ACL=off
-      - VMQ_CONF___PLUGINS__VMQ_DIVERSITY=on
-      - VMQ_CONF___PLUGINS__VMQ_WEBHOOKS=off
-
-      - VMQ_CONF___VMQ_DIVERSITY__HTTP_AUTH__FILE=/opt/vernemq/auth_http.lua
-
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__HOOK=auth_on_register
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__HOOK=auth_on_subscribe
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__HOOK=auth_on_publish
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_REGISTER__ENDPOINT=http://http-auth:3000/vmq/auth
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_SUBSCRIBE__ENDPOINT=http://http-auth:3000/vmq/sub
-      - VMQ_CONF___VMQ_WEBHOOKS__AUTH_ON_PUBLISH__ENDPOINT=http://http-auth:3000/vmq/pub
-
-      - VMQ_HTTP_AUTH_URL=http://http-auth:3000/vmq/lua
 
     command:
       ["/opt/vernemq/bin/start_vernemq.sh"]
