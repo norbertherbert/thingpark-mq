@@ -13,11 +13,10 @@ services:
       - DXAPI_GRANT_TYPE=client_credentials
       - DXAPI_TOKEN_REQUEST_URL=https://dx-api.thingpark.io/admin/latest/api/oauth/token
 
-      - KEYCLOAK_REALM=le-lab
       - KEYCLOAK_GRANT_TYPE=password
       - KEYCLOAK_SCOPE=openid
       - KEYCLOAK_CLIENT_ID=tpx-le-nit
-      - KEYCLOAK_TOKEN_REQUEST_URL=https://le-lab.preview.thingpark.com/auth/realms/le-lab/protocol/openid-connect/token
+      - KEYCLOAK_AUTH_URL=https://le-lab.preview.thingpark.com/auth
 
     command:
       ["npm", "start"]

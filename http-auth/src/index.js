@@ -1,9 +1,11 @@
 import express, { json, urlencoded } from 'express';
+import fetch from 'node-fetch';
 
 import { getAccessTokenAsync } from './tpxle-auth.js';
 
-const app = express();
+const DXADMINAPI_URL = process.env.DXADMINAPI_URL; // || 'https://dx-api.thingpark.io/admin/latest/api';
 
+const app = express();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -21,15 +23,15 @@ app.use((req, res, next) => {
 
 app.post('/vmq/lua', async (req, res) => {
 
-  if (!(req.body.username && req.body.password)) {
-    res.status(400).end();
-    return;
-  }
-
   const headers = {
     'content-type': 'application/json',
   };
   res.header(headers);
+
+  if (!(req.body.username && req.body.password)) {
+    res.status(400).end(); 
+    return;
+  }
 
   let responseBody;
 
@@ -47,33 +49,66 @@ app.post('/vmq/lua', async (req, res) => {
     return;
   }
 
-  const authSrvType = req.body.username.includes('/') ? 'dx-api' : 'keycloak';
+  const usernameSegments = req.body.username.split('/');
+  if (usernameSegments.length !== 3) {
+    res.status(400).end(); 
+    return;
+  }
 
   try {
-    const accessToken = await getAccessTokenAsync(req.body.username, req.body.password, authSrvType);
+
+    const accessToken = await getAccessTokenAsync(req.body.username, req.body.password);
 
     const accessTokenDecoded = JSON.parse(
       Buffer.from(accessToken.split('.')[1], 'base64').toString(),
     );
-    let subscriberId;
-    if (authSrvType === 'keycloak') {
-      // subscriberId = accessTokenDecoded.parentSubscriptions['actility-sup/tpx'][0].subscriberId;
-      subscriberId = accessTokenDecoded.sub;
-    } else {
-      // eslint-disable-next-line prefer-destructuring
-      subscriberId = accessTokenDecoded.scope[0].split(':')[1];
+
+    let pattern = '';
+
+    let operatorId = '';
+    let subscriberId = '';
+    let realm = '';
+    let userId = '';
+
+    switch (usernameSegments[0]) {
+      case 'B2B':
+        const profileResponse = await fetch(
+          `${DXADMINAPI_URL}/profiles/${usernameSegments[1]}`, 
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          }
+        );
+        if (!profileResponse.ok) {
+          res.status(400).end(); 
+          return;
+        }
+        const profileResponseJson = await profileResponse.json();
+        operatorId = profileResponseJson.description;
+        const subscriberIdShort = accessTokenDecoded.scope[0].split(':')[1];
+        subscriberId = '1' + String(subscriberIdShort).padStart(8, 0);
+        pattern = `${operatorId}|${subscriberId}/#`
+        break;
+      case 'B2C':
+        operatorId = accessTokenDecoded.parentRealmId.substring(10);
+        subscriberId = accessTokenDecoded['parentSubscriptions']['actility-sup/tpx'][0]['subscriberId'];
+        realm = usernameSegments[1];
+        userId = accessTokenDecoded.sub;
+        pattern = `${operatorId}|${subscriberId}|${realm}|${userId}/#`;
+        break;
+      default:
+        res.status(400).end(); 
+        return;
     }
 
     console.log(subscriberId);
 
     responseBody = {
       result: 'ok',
-      publish_acl: [{ pattern: `${subscriberId}/#` }, { pattern: `${subscriberId}/#` }],
-      subscribe_acl: [
-        // { pattern: '#' },
-        { pattern: `${subscriberId}/#` },
-        { pattern: `${subscriberId}/#` },
-      ],
+      publish_acl: [ { pattern } ],
+      subscribe_acl: [ { pattern } ],
     };
     console.log(JSON.stringify(responseBody));
     res.status(200).json(responseBody);

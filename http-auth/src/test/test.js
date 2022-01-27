@@ -42,7 +42,7 @@ dotenv.config({ path: new URL('./.env', import.meta.url) });
         const response_01_json = await response_01.json()
         console.log(response_01_json);
     }
-        
+
     if (process.env.MQTT_B2C_USER && process.env.MQTT_B2C_PASSWD) {
         const response_02 = await fetch(`http://localhost:${process.env.HTTP_AUTH_PORT}/vmq/lua`, {
             method: 'POST',
@@ -55,5 +55,6 @@ dotenv.config({ path: new URL('./.env', import.meta.url) });
         const response_02_json = await response_02.json()
         console.log(response_02_json);
     }
+
 
 })();
