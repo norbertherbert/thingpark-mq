@@ -3,10 +3,7 @@ import express, { json, urlencoded } from 'express';
 import { getAccessTokenAsync } from './tpxle-auth.js';
 
 const app = express();
-const port = process.env.HTTP_AUTH_PORT;
 
-// Only used for Webhooks Plugin
-const CACHE_AGE_IN_SECONDS = 300;
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -17,10 +14,17 @@ app.use((req, res, next) => {
 });
 
 
-// Used for plugins.vmq_diversity with LUA script
-// This is the currently working way of authentication and access control
+/* **********************************************************
+ * This code is used for the VMQ Diversity Plugin with a LUA script.
+ * This is the currently implemented method for authentication and access control.
+ * ********************************************************* */
+
 app.post('/vmq/lua', async (req, res) => {
-  console.log(JSON.stringify(req.body));
+
+  if (!(req.body.username && req.body.password)) {
+    res.status(400).end();
+    return;
+  }
 
   const headers = {
     'content-type': 'application/json',
@@ -79,8 +83,14 @@ app.post('/vmq/lua', async (req, res) => {
 });
 
 
-// Only used for Webhooks Plugin
-// This is just a template code that acceps all requests with result: ok.
+/* **********************************************************
+ * This code could be used for the VMQ Webhooks Plugin.
+ * It is just a template code that would accept all requests with result: ok.
+ * ********************************************************* */
+/*
+
+const CACHE_AGE_IN_SECONDS = 300;
+
 app.post('/vmq/auth', async (req, res) => {
 
     console.log(JSON.stringify(req.body));
@@ -104,8 +114,6 @@ app.post('/vmq/auth', async (req, res) => {
 
 })
 
-// Only used for Webhooks Plugin
-// This is just a template code that acceps all requests with result: ok.
 app.post('/vmq/sub', async (req, res) => {
 
     console.log(JSON.stringify(req.body));
@@ -127,8 +135,6 @@ app.post('/vmq/sub', async (req, res) => {
     res.status(200).json(responeBody);
 })
 
-// Only used for Webhooks Plugin
-// This is just a template code that acceps all requests with result: ok.
 app.post('/vmq/pub', async (req, res) => {
 
     console.log(JSON.stringify(req.body));
@@ -150,6 +156,7 @@ app.post('/vmq/pub', async (req, res) => {
     res.status(200).json(responeBody);
 })
 
+*/
 
 
 app.use((req, res, next) => {
@@ -161,7 +168,7 @@ app.use((err, res, req, next) => {
     return res.status(500).end();
 });
 
-const server = app.listen(3000, () => {
+const server = app.listen(process.env.HTTP_AUTH_PORT, () => {
     const address = server.address();
     return console.log(`Server listening on ${address.address}:${address.port} ...`);
 });
