@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:17-alpine
 
 COPY ./src /http-auth
 WORKDIR /http-auth

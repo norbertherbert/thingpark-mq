@@ -10,8 +10,8 @@ services:
       - MQTT_SUPER_USER=super
       - MQTT_SUPER_PASSWD=spwd
 
-      - DXAPI_GRANT_TYPE=client_credentials
-      - DXAPI_TOKEN_REQUEST_URL=https://dx-api.thingpark.io/admin/latest/api/oauth/token
+      - DXADMINAPI_GRANT_TYPE=client_credentials
+      - DXADMINAPI_URL=https://dx-api.thingpark.io/admin/latest/api
 
       - KEYCLOAK_GRANT_TYPE=password
       - KEYCLOAK_SCOPE=openid
