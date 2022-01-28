@@ -5,15 +5,20 @@ import { getAccessTokenAsync } from './tpxle-auth.js';
 
 const DXADMINAPI_URL = process.env.DXADMINAPI_URL; // || 'https://dx-api.thingpark.io/admin/latest/api';
 
-const app = express();
+export const app = express();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
+
+// This middleware is logging every client request.
+// Useful for debugging
+/*
 app.use((req, res, next) => {
     console.log(`${req.socket.remoteAddress}:${req.socket.remotePort} ${req.method} ${req.path}`);
     return next();
 });
+*/
 
 
 /* **********************************************************
@@ -44,7 +49,7 @@ app.post('/vmq/lua', async (req, res) => {
       publish_acl: [{ pattern: '#' }],
       subscribe_acl: [{ pattern: '#' }],
     };
-    console.log(JSON.stringify(responseBody));
+    // console.log(JSON.stringify(responseBody));
     res.status(200).json(responseBody);
     return;
   }
@@ -103,14 +108,14 @@ app.post('/vmq/lua', async (req, res) => {
         return;
     }
 
-    console.log(subscriberId);
+    // console.log(subscriberId);
 
     responseBody = {
       result: 'ok',
       publish_acl: [ { pattern } ],
       subscribe_acl: [ { pattern } ],
     };
-    console.log(JSON.stringify(responseBody));
+    // console.log(JSON.stringify(responseBody));
     res.status(200).json(responseBody);
   } catch (err) {
     res.status(403).end();

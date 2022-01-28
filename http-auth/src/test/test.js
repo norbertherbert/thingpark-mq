@@ -1,60 +1,96 @@
-/*
- * Before running this test prepare the environment:
- * - create a .env file based on the "template.env" file
- * - activate the environment by executring the following linux commands:
- *     set -a
- *     source .env
- *     set +a
- * - run the server
- *     npm start
-*/
 
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
+import chai from 'chai';
+import chaiHttp from 'chai-http';
 
-dotenv.config({ path: new URL('./.env', import.meta.url) });
+import { app } from '../index.js';
 
 
-(async () => {
+chai.use(chaiHttp);
+chai.should();
+const expect = chai.expect;
 
-    if (process.env.MQTT_SUPER_USER && process.env.MQTT_SUPER_PASSWD) {
-        const response_00 = await fetch(`http://localhost:${process.env.HTTP_AUTH_PORT}/vmq/lua`, {
-            method: 'POST',
-            body: JSON.stringify({
+
+describe('lua script authentication tests:', () => {
+
+    const requester = chai.request(app).keepOpen();
+    after(() => requester.close());
+
+
+    it('should authenticate super user', async () => {
+        
+        const response = await requester
+            .post('/vmq/lua')
+            .set('Content-Type', 'application/json')
+            .send({
                 username: process.env.MQTT_SUPER_USER,
                 password: process.env.MQTT_SUPER_PASSWD
-            }),
-            headers: { 'Content-Type': 'application/json' },
+            });
+
+        response.should.have.status(200);
+        expect(response.body).to.eql({ 
+            result: 'ok', 
+            publish_acl: [
+                { pattern: '#' }
+            ],
+            subscribe_acl: [
+                { pattern: '#' }
+            ]
         });
-        const response_00_json = await response_00.json()
-        console.log(response_00_json);
-    }
 
-    if (process.env.MQTT_B2B_USER && process.env.MQTT_B2B_PASSWD) {
-        const response_01 = await fetch(`http://localhost:${process.env.HTTP_AUTH_PORT}/vmq/lua`, {
-            method: 'POST',
-            body: JSON.stringify({
-                username: process.env.MQTT_B2B_USER,
-                password: process.env.MQTT_B2B_PASSWD
-            }),
-            headers: { 'Content-Type': 'application/json' },
+        // after(() => console.log(response.body));
+
+    });
+
+
+    it('should authenticate B2B user', async() => {
+        
+        const response = await requester
+            .post('/vmq/lua')
+            .set('Content-Type', 'application/json')
+            .send({
+                username: process.env.B2B_USERNAME,
+                password: process.env.B2B_PASSWORD
+            });
+
+        response.should.have.status(200);
+        expect(response.body).to.eql({
+            result: 'ok',
+            publish_acl: [
+                { pattern: `${process.env.B2B_OPERATORID}|${process.env.B2B_SUBSCRIBERID}/#` }
+            ],
+            subscribe_acl: [
+                { pattern: `${process.env.B2B_OPERATORID}|${process.env.B2B_SUBSCRIBERID}/#` }
+            ]
         });
-        const response_01_json = await response_01.json()
-        console.log(response_01_json);
-    }
 
-    if (process.env.MQTT_B2C_USER && process.env.MQTT_B2C_PASSWD) {
-        const response_02 = await fetch(`http://localhost:${process.env.HTTP_AUTH_PORT}/vmq/lua`, {
-            method: 'POST',
-            body: JSON.stringify({
-                username: process.env.MQTT_B2C_USER,
-                password: process.env.MQTT_B2C_PASSWD
-            }),
-            headers: { 'Content-Type': 'application/json' },
+        // after(() => console.log(response.body));
+
+    });
+
+
+    it('should authenticate B2C user', async() => {
+        
+        const response = await requester
+            .post('/vmq/lua')
+            .set('Content-Type', 'application/json')
+            .send({
+                username: process.env.B2C_USERNAME,
+                password: process.env.B2C_PASSWORD
+            });
+
+        response.should.have.status(200);
+        expect(response.body).to.eql({
+            result: 'ok',
+            publish_acl: [
+                { pattern: `${process.env.B2C_OPERATORID}|${process.env.B2C_SUBSCRIBERID}|${process.env.B2C_REALM}|${process.env.B2C_USERID}/#` }
+            ],
+            subscribe_acl: [
+                { pattern: `${process.env.B2C_OPERATORID}|${process.env.B2C_SUBSCRIBERID}|${process.env.B2C_REALM}|${process.env.B2C_USERID}/#` }
+            ]
         });
-        const response_02_json = await response_02.json()
-        console.log(response_02_json);
-    }
 
+        // after(() => console.log(response.body));
 
-})();
+    });
+
+});

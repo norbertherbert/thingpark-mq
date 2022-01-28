@@ -45,19 +45,19 @@ export const getAccessTokenAsync = async (username, password) => {
       });
       break;
     default:
-      console.log(`UL: getAccessTokenAsync: clientId: ${usernameSegments[2]}: Invalid authSrvType`);
+      error.log(`UL: getAccessTokenAsync: clientId: ${usernameSegments[2]}: Invalid authSrvType`);
       throw httpError(400, 'Invalid authSrvType.');
   }
 
   let accessToken;
 
   try {
-    console.log(url);
-    console.log(JSON.stringify(options, null, 4));
+    // console.log(url);
+    // console.log(JSON.stringify(options, null, 4));
 
     const dxapiTokenResponse = await fetch(url, options);
     if (!dxapiTokenResponse.ok) {
-      console.log(
+      error.log(
         `UL: getAccessTokenAsync: username: ${usernameSegments[2]}: HTTP error happened while getting access token: ${dxapiTokenResponse.status}, ${dxapiTokenResponse.statusText}`,
       );
       throw httpError(500, `HTTP Error happened while getting access token`);
@@ -65,13 +65,13 @@ export const getAccessTokenAsync = async (username, password) => {
     const dxapiTokenResponseParsed = await dxapiTokenResponse.json();
     accessToken = dxapiTokenResponseParsed.access_token;
     if (accessToken) {
-      console.log(
-        `UL: getAccessTokenAsync: username: ${usernameSegments[2]}: Token received from token endpoint.`,
-      );
-      console.log(accessToken);
+      // console.log(
+      //   `UL: getAccessTokenAsync: username: ${usernameSegments[2]}: Token received from token endpoint.`,
+      // );
+      // console.log(accessToken);
       return accessToken;
     }
-    console.log(
+    error.log(
       `UL: getAccessTokenAsync: username: ${usernameSegments[2]}: Token response does not include an 'access_token' field.`,
     );
     throw httpError(500, `Token response does not include an 'access_token' field.`);
@@ -79,7 +79,7 @@ export const getAccessTokenAsync = async (username, password) => {
     if (httpError.isHttpError(err)) {
       throw err;
     } else {
-      console.log(
+      error.log(
         `UL: getAccessTokenAsync: username: ${usernameSegments[2]}: Error happened while getting access token: ${err.stack}`,
       );
       throw httpError(500, `Error happened while getting access token`);
