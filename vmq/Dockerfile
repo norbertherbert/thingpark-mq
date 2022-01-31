@@ -3,7 +3,6 @@ FROM erlang:24.2.1.0 AS builder
 RUN apt-get update && \
     apt-get install -y git build-essential libsnappy-dev libssl-dev && \
     # git clone --single-branch --branch feature_anonymous_per_listener https://github.com/vernemq/vernemq && \
-    # git clone --branch feature_anonymous_per_listener https://github.com/vernemq/vernemq && \
     git clone https://github.com/vernemq/vernemq && \
     cd vernemq && \
     make rel
