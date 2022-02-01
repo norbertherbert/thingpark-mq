@@ -1,4 +1,9 @@
-Before running the test scripts prepare the environment:
+## Prepare the environment:
+- Install the moquitto-clients package  
+  In Debian-based distributions you can execute the following command
+  ```
+  sudo apt-get install mosquitto-clients
+  ```
 - Create a .env file based on the `template.env` file
   ```
   cp template.env .env
@@ -11,7 +16,12 @@ Before running the test scripts prepare the environment:
   source .env
   set +a
   ```
-- Run the server
+## Execute tests:
+- Run a `subscribe_*` script in a terminal window
   ```
-  npm start
+  ./subscribe_b2b_tcp.sh
+  ```
+- Run a `publish_*` script in another terminal window
+  ```
+  ./publish_b2b_tcp.sh
   ```

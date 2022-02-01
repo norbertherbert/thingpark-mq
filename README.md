@@ -14,7 +14,8 @@ docker-compose down
 ```
 
 ## Tests
-Reade the `README.md` file of the `test_template` folder
+Read the `README.md` file in the `test` folder
+
 
 ## Deploy for Production
-Reade the `README.md` file of the `vmq/certs` folder
+Read the `README.md` file in the `vmq/certs` folder
