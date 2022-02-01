@@ -1,13 +1,14 @@
 # STAGE 1: BUILD VERNE MQ
-FROM erlang AS builder
+FROM erlang:24.2.1.0 AS builder
 RUN apt-get update && \
     apt-get install -y git build-essential libsnappy-dev libssl-dev && \
+    # git clone --single-branch --branch feature_anonymous_per_listener https://github.com/vernemq/vernemq && \
     git clone https://github.com/vernemq/vernemq && \
     cd vernemq && \
     make rel
 
 # STAGE 2: CREATE VERNE MQ IMAGE
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 RUN apt-get update && \
     apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools nano && \
     rm -rf /var/lib/apt/lists/* && \
