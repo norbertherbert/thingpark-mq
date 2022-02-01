@@ -5,4 +5,4 @@ mosquitto_pub \
  -P $B2B_PASSWORD \
  -t "$B2B_OPERATORID|$B2B_SUBSCRIBERID/test" \
  --id client-pub \
- -m 'hello'
+ -m 'helo'

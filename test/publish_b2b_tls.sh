@@ -6,4 +6,4 @@ mosquitto_pub \
  -t "$B2B_OPERATORID|$B2B_SUBSCRIBERID/test" \
  --cafile ../vmq/certs/ca.crt \
  --id client-pub \
- -m 'hello'
+ -m 'helo'

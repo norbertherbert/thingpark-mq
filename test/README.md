@@ -25,3 +25,7 @@
   ```
   ./publish_b2b_tcp.sh
   ```
+- Check if you can see in the `subscribe_*` window the following message: 
+  ```
+  helo
+  ```
