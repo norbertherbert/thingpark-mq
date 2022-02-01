@@ -1,6 +1,6 @@
 ## Prepare the environment:
 - Install the moquitto-clients package  
-  In Debian-based distributions you can execute the following command
+  On Debian-based distributions you can execute the following command
   ```
   sudo apt-get install mosquitto-clients
   ```
